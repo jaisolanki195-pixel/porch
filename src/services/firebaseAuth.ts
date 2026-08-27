@@ -40,7 +40,7 @@ export const isFirebaseConfigured = Boolean(
 
 // Designated Station Owner Email (Configured via env or default)
 export const AUTHORIZED_OWNER_EMAIL = (
-  import.meta.env.VITE_OWNER_EMAIL || 'jaisolanki195@gmail.com'
+  import.meta.env.VITE_OWNER_EMAIL || ''
 ).toLowerCase().trim();
 
 let app: FirebaseApp | null = null;
