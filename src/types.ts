@@ -5,6 +5,7 @@ export type WindIntensity = 'none' | 'very-light' | 'light';
 
 export type PlaylistLoopMode = 'off' | 'repeat-playlist' | 'repeat-single';
 export type ColorTheme = 'warm-nostalgia' | 'monsoon' | 'vintage-radio' | 'evening';
+export type PerformanceMode = 'cinematic' | 'balanced' | 'performance';
 
 export interface RainSettings {
   enabled: boolean;
@@ -46,6 +47,7 @@ export interface AtmosphereSettings {
   atmosphericMist: boolean;
   mountainHaze: boolean;
   ambientMotion: boolean;
+  performanceMode: PerformanceMode;
 }
 
 export interface ContentSettings {
@@ -78,8 +80,21 @@ export interface PlaylistItem {
   index: number;
 }
 
+export type PlaybackState =
+  | 'idle'
+  | 'loading'
+  | 'playing'
+  | 'paused'
+  | 'buffering'
+  | 'skipping'
+  | 'autoplay-blocked'
+  | 'error'
+  | 'no-playable-track'
+  | 'ended';
+
 export interface PlayerStatus {
   isPlaying: boolean;
+  playbackState: PlaybackState;
   currentTime: number;
   duration: number;
   currentIndex: number;
@@ -88,6 +103,9 @@ export interface PlayerStatus {
   author: string;
   isBuffering: boolean;
   isReady: boolean;
+  tuningMessage: string | null;
   error: string | null;
+  isEntirePlaylistUnplayable: boolean;
+  needsUserGesture: boolean;
   playlist: string[];
 }

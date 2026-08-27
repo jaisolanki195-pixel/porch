@@ -1,6 +1,6 @@
 {
-  "name": "Remix Father\u0027s Radio - 90s Monsoon",
-  "description": "Nostalgic 1990s monsoon radio and music player with synchronized YouTube playlist and atmospheric rain animations.",
+  "name": "Father's Radio — 90s Monsoon Nostalgia",
+  "description": "Nostalgic 1990s monsoon radio and music player with synchronized YouTube playlist, atmospheric rain canvas, and authentic transistor radio tuning.",
   "requestFramePermissions": [],
   "majorCapabilities": [
     "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"

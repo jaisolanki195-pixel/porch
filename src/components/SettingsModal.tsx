@@ -799,6 +799,47 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 </p>
               </div>
 
+              {/* Performance Mode Selector */}
+              <div className="p-3.5 bg-stone-950/60 border border-stone-800 rounded-xl space-y-2">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="text-xs font-semibold text-stone-200">Rendering Performance Mode</div>
+                    <div className="text-[10px] text-stone-400">Adapts particle physics & layers to device hardware</div>
+                  </div>
+                </div>
+                <div className="grid grid-cols-3 gap-2 pt-1">
+                  {(
+                    [
+                      { id: 'cinematic', label: 'Cinematic', desc: 'Full fidelity' },
+                      { id: 'balanced', label: 'Balanced', desc: 'Smooth 60fps' },
+                      { id: 'performance', label: 'Performance', desc: 'Battery saver' },
+                    ] as const
+                  ).map((mode) => (
+                    <button
+                      key={mode.id}
+                      type="button"
+                      onClick={() =>
+                        setLocalSettings((prev) => ({
+                          ...prev,
+                          atmosphere: {
+                            ...prev.atmosphere,
+                            performanceMode: mode.id,
+                          },
+                        }))
+                      }
+                      className={`p-2 rounded-xl text-left border transition-all ${
+                        (localSettings.atmosphere.performanceMode || 'cinematic') === mode.id
+                          ? 'bg-amber-500/20 border-amber-400 text-amber-300'
+                          : 'bg-stone-900 border-stone-800 text-stone-400 hover:text-stone-200'
+                      }`}
+                    >
+                      <div className="text-xs font-medium">{mode.label}</div>
+                      <div className="text-[9px] opacity-75 font-mono">{mode.desc}</div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
               <div className="space-y-2.5">
                 {[
                   {
@@ -813,8 +854,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   },
                   {
                     key: 'radioAnimation',
-                    label: 'Radio Glow & Tuning Needle Motion',
-                    desc: 'Backlit frequency dial and acoustic speaker vibration on playback',
+                    label: 'Vintage Radio Speaker Vibration',
+                    desc: 'Acoustic speaker vibration feedback during music playback',
                   },
                   {
                     key: 'atmosphericMist',

@@ -65,9 +65,32 @@ export function loadYouTubeIframeApi(): Promise<void> {
   }
 
   youtubeScriptLoadingPromise = new Promise((resolve) => {
+    let resolved = false;
+    let pollInterval: number | null = null;
+    let timeoutTimer: number | null = null;
+
+    const cleanup = () => {
+      if (pollInterval) {
+        clearInterval(pollInterval);
+        pollInterval = null;
+      }
+      if (timeoutTimer) {
+        clearTimeout(timeoutTimer);
+        timeoutTimer = null;
+      }
+    };
+
+    const finish = () => {
+      if (!resolved) {
+        resolved = true;
+        cleanup();
+        resolve();
+      }
+    };
+
     // Check if already available on window
     if ((window as any).YT && (window as any).YT.Player) {
-      resolve();
+      finish();
       return;
     }
 
@@ -80,29 +103,31 @@ export function loadYouTubeIframeApi(): Promise<void> {
           // ignore
         }
       }
-      resolve();
+      finish();
     };
 
-    // Also poll in case script was already injected or cached
-    const interval = window.setInterval(() => {
+    // Poll in case script was already injected or cached
+    pollInterval = window.setInterval(() => {
       if ((window as any).YT && (window as any).YT.Player) {
-        clearInterval(interval);
-        resolve();
+        finish();
       }
     }, 100);
 
-    // Timeout safety
-    setTimeout(() => {
-      clearInterval(interval);
-      resolve();
+    // Timeout safety after 10 seconds
+    timeoutTimer = window.setTimeout(() => {
+      finish();
     }, 10000);
 
-    // Check if script tag already exists in head/body
+    // Check if script tag already exists in document
     const existingScript = document.querySelector('script[src*="youtube.com/iframe_api"]');
     if (!existingScript) {
       const tag = document.createElement('script');
       tag.src = 'https://www.youtube.com/iframe_api';
       tag.async = true;
+      tag.onerror = () => {
+        console.warn('YouTube IFrame API script tag failed to load (offline or blocked).');
+        finish();
+      };
       document.head.appendChild(tag);
     }
   });

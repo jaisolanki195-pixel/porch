@@ -1,8 +1,9 @@
 import React, { useEffect, useRef } from 'react';
-import { RainSettings } from '../types';
+import { RainSettings, PerformanceMode } from '../types';
 
 interface RainCanvasProps {
   settings: RainSettings;
+  performanceMode?: PerformanceMode;
 }
 
 interface RainDrop {
@@ -49,7 +50,7 @@ interface SplashParticle {
   size: number;
 }
 
-export const RainCanvas: React.FC<RainCanvasProps> = ({ settings }) => {
+export const RainCanvas: React.FC<RainCanvasProps> = ({ settings, performanceMode = 'cinematic' }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   useEffect(() => {
@@ -59,8 +60,15 @@ export const RainCanvas: React.FC<RainCanvasProps> = ({ settings }) => {
     if (!ctx) return;
 
     let animationFrameId: number;
+    let isTabVisible = !document.hidden;
     let width = (canvas.width = window.innerWidth);
     let height = (canvas.height = window.innerHeight);
+
+    // Check reduced motion preference
+    const prefersReducedMotion =
+      typeof window !== 'undefined' &&
+      window.matchMedia &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     const handleResize = () => {
       if (!canvas) return;
@@ -69,43 +77,80 @@ export const RainCanvas: React.FC<RainCanvasProps> = ({ settings }) => {
       initRain();
     };
 
+    const handleVisibilityChange = () => {
+      isTabVisible = !document.hidden;
+      if (isTabVisible) {
+        lastTime = performance.now();
+      }
+    };
+
     window.addEventListener('resize', handleResize);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
 
     // Physics parameters based on settings
     const getDensity = () => {
+      const isMobile = width < 768;
+      const mobileFactor = isMobile ? 0.55 : 1.0;
+      let perfFactor = 1.0;
+      if (performanceMode === 'performance') perfFactor = 0.4;
+      else if (performanceMode === 'balanced') perfFactor = 0.75;
+
+      let base = 400;
       switch (settings.intensity) {
-        case 'very-light': return 100;
-        case 'light': return 220;
-        case 'medium': return 420;
-        case 'heavy': return 750;
-        default: return 400;
+        case 'very-light':
+          base = 100;
+          break;
+        case 'light':
+          base = 220;
+          break;
+        case 'medium':
+          base = 420;
+          break;
+        case 'heavy':
+          base = 750;
+          break;
+        default:
+          base = 400;
       }
+      return Math.max(20, Math.floor(base * mobileFactor * perfFactor));
     };
 
     const getSpeedMultiplier = () => {
       switch (settings.speed) {
-        case 'slow': return 0.65;
-        case 'natural': return 1.0;
-        case 'fast': return 1.45;
-        default: return 1.0;
+        case 'slow':
+          return 0.65;
+        case 'natural':
+          return 1.0;
+        case 'fast':
+          return 1.45;
+        default:
+          return 1.0;
       }
     };
 
     const getSizeMultiplier = () => {
       switch (settings.dropSize) {
-        case 'fine': return 0.75;
-        case 'natural': return 1.0;
-        case 'heavy': return 1.5;
-        default: return 1.0;
+        case 'fine':
+          return 0.75;
+        case 'natural':
+          return 1.0;
+        case 'heavy':
+          return 1.5;
+        default:
+          return 1.0;
       }
     };
 
     const getWindOffset = () => {
       switch (settings.wind) {
-        case 'none': return 0;
-        case 'very-light': return 0.08;
-        case 'light': return 0.22;
-        default: return 0.08;
+        case 'none':
+          return 0;
+        case 'very-light':
+          return 0.08;
+        case 'light':
+          return 0.22;
+        default:
+          return 0.08;
       }
     };
 
@@ -170,7 +215,8 @@ export const RainCanvas: React.FC<RainCanvasProps> = ({ settings }) => {
 
       // Initialize roof drip points along the top porch overhang (top 8% to 16% height)
       roofDrips = [];
-      const roofPointsCount = Math.floor(width / 70);
+      const roofSpacing = (width < 768 ? 90 : 70) * (performanceMode === 'performance' ? 1.8 : 1.0);
+      const roofPointsCount = Math.floor(width / roofSpacing);
       for (let i = 0; i < roofPointsCount; i++) {
         const sourceX = (i / roofPointsCount) * width + (Math.random() * 30 - 15);
         const sourceY = Math.min(height * 0.15, 60 + Math.random() * 40);
@@ -196,19 +242,23 @@ export const RainCanvas: React.FC<RainCanvasProps> = ({ settings }) => {
     let lastTime = performance.now();
 
     const animate = (currentTime: number) => {
+      if (!isTabVisible) {
+        animationFrameId = requestAnimationFrame(animate);
+        return;
+      }
+
       const delta = Math.min((currentTime - lastTime) / 16.67, 2.5); // Cap delta to prevent lag skips
       lastTime = currentTime;
 
       ctx.clearRect(0, 0, width, height);
 
-      if (!settings.enabled) {
+      if (!settings.enabled || prefersReducedMotion) {
         animationFrameId = requestAnimationFrame(animate);
         return;
       }
 
       const windSlope = getWindOffset();
       const speedMult = getSpeedMultiplier();
-      const sizeMult = getSizeMultiplier();
 
       // 1. Draw and Update Rain Drops (TOP -> BOTTOM)
       for (let i = 0; i < drops.length; i++) {
@@ -253,8 +303,8 @@ export const RainCanvas: React.FC<RainCanvasProps> = ({ settings }) => {
             maxLife: 22 + Math.random() * 12,
           });
 
-          // Small splash particle
-          if (d.layer === 'fg' || d.layer === 'mid') {
+          // Small splash particle in cinematic/balanced mode
+          if (performanceMode !== 'performance' && (d.layer === 'fg' || d.layer === 'mid')) {
             splashes.push({
               x: d.x,
               y: d.y + d.length,
@@ -414,9 +464,10 @@ export const RainCanvas: React.FC<RainCanvasProps> = ({ settings }) => {
 
     return () => {
       window.removeEventListener('resize', handleResize);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
       cancelAnimationFrame(animationFrameId);
     };
-  }, [settings]);
+  }, [settings, performanceMode]);
 
   return (
     <canvas

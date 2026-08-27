@@ -13,6 +13,7 @@ export const AtmosphericEffects: React.FC<AtmosphericEffectsProps> = ({
   windLevel,
 }) => {
   const isPlaying = playerStatus.isPlaying;
+  const isPerformance = atmosphere.performanceMode === 'performance';
 
   // Compute wind drift offset for steam and foliage
   const windOffsetClass =
@@ -27,8 +28,17 @@ export const AtmosphericEffects: React.FC<AtmosphericEffectsProps> = ({
 
   return (
     <div className="absolute inset-0 pointer-events-none z-10 overflow-hidden select-none">
-      {/* 1. Atmospheric Mountain Haze & Monsoon Mist Layers */}
-      {atmosphere.atmosphericMist && (
+      {/* 1. Cinematic Film Grain & Soft Vignette Layer */}
+      <div
+        className="absolute inset-0 pointer-events-none opacity-[0.04] mix-blend-overlay"
+        style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
+        }}
+      />
+      <div className="absolute inset-0 pointer-events-none bg-radial-vignette opacity-50" />
+
+      {/* 2. Atmospheric Mountain Haze & Monsoon Mist Layers */}
+      {!isPerformance && atmosphere.atmosphericMist && (
         <div className="absolute top-[22%] left-0 right-0 h-[28%] pointer-events-none opacity-40 mix-blend-screen overflow-hidden">
           <div
             className="absolute inset-0 bg-gradient-to-r from-transparent via-sky-200/25 to-transparent blur-2xl animate-mist-drift"
@@ -41,11 +51,11 @@ export const AtmosphericEffects: React.FC<AtmosphericEffectsProps> = ({
         </div>
       )}
 
-      {atmosphere.mountainHaze && (
+      {!isPerformance && atmosphere.mountainHaze && (
         <div className="absolute top-[32%] left-[18%] w-[65%] h-[18%] bg-indigo-900/15 blur-xl mix-blend-overlay pointer-events-none" />
       )}
 
-      {/* 2. Hanging Plant & Potted Plant Subtle Monsoon Breeze Sway */}
+      {/* 3. Hanging Plant & Potted Plant Subtle Monsoon Breeze Sway */}
       {atmosphere.plantMovement && (
         <>
           {/* Top Left Potted Plant (on yellow porch beam) */}
@@ -80,7 +90,7 @@ export const AtmosphericEffects: React.FC<AtmosphericEffectsProps> = ({
         </>
       )}
 
-      {/* 3. Father's Chai / Tea Steam Particle System */}
+      {/* 4. Father's Chai / Tea Steam Particle System */}
       {atmosphere.teaSteam && (
         <div className="absolute bottom-[32%] left-[45%] md:left-[47%] w-16 h-36 pointer-events-none flex flex-col items-center">
           {/* Subtle cup warm thermal glow */}
@@ -95,33 +105,18 @@ export const AtmosphericEffects: React.FC<AtmosphericEffectsProps> = ({
             className={`absolute bottom-6 w-8 h-24 rounded-full bg-gradient-to-t from-white/25 via-amber-100/10 to-transparent blur-[4px] opacity-60 ${windOffsetClass}`}
             style={{ animationDuration: '5.5s', animationDelay: '1.4s' }}
           />
-          <div
-            className={`absolute bottom-12 w-5 h-16 rounded-full bg-gradient-to-t from-white/20 to-transparent blur-[3px] opacity-50 ${windOffsetClass}`}
-            style={{ animationDuration: '3.8s', animationDelay: '2.8s' }}
-          />
+          {!isPerformance && (
+            <div
+              className={`absolute bottom-12 w-5 h-16 rounded-full bg-gradient-to-t from-white/20 to-transparent blur-[3px] opacity-50 ${windOffsetClass}`}
+              style={{ animationDuration: '3.8s', animationDelay: '2.8s' }}
+            />
+          )}
         </div>
       )}
 
-      {/* 4. Vintage Radio Interactive Aura & Visualizer Overlay */}
+      {/* 5. Vintage Radio Speaker Vibration Overlay */}
       {atmosphere.radioAnimation && (
         <div className="absolute bottom-[16%] right-[22%] md:right-[26%] w-44 h-32 pointer-events-none">
-          {/* Dial / Tuner Glow */}
-          <div
-            className={`absolute top-[28%] left-[22%] w-24 h-9 rounded-sm transition-all duration-700 ${
-              isPlaying
-                ? 'bg-amber-400/25 shadow-[0_0_20px_rgba(251,191,36,0.5)] border border-amber-300/40'
-                : 'bg-amber-900/10 border border-stone-700/20'
-            }`}
-          >
-            {/* Tuner frequency needle motion */}
-            {isPlaying && (
-              <div
-                className="w-0.5 h-full bg-red-500 shadow-[0_0_6px_#ef4444] animate-needle-drift"
-                style={{ animationDuration: '12s' }}
-              />
-            )}
-          </div>
-
           {/* Speaker Acoustic Vibration / Pulse */}
           <div
             className={`absolute top-[48%] left-[18%] w-16 h-12 rounded-sm transition-transform duration-300 ${
@@ -130,16 +125,6 @@ export const AtmosphericEffects: React.FC<AtmosphericEffectsProps> = ({
           >
             <div className="w-full h-full bg-amber-500/10 rounded-full blur-[3px]" />
           </div>
-
-          {/* Radio Antenna Broadcast Waves */}
-          {isPlaying && (
-            <div className="absolute -top-12 -left-6 flex items-center justify-center">
-              <span className="relative flex h-6 w-6">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-40"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500 my-auto mx-auto shadow-sm"></span>
-              </span>
-            </div>
-          )}
         </div>
       )}
 
@@ -181,12 +166,6 @@ export const AtmosphericEffects: React.FC<AtmosphericEffectsProps> = ({
           50% { transform: translateX(-20%); }
           100% { transform: translateX(20%); }
         }
-        @keyframes needleDrift {
-          0% { margin-left: 15%; }
-          30% { margin-left: 72%; }
-          65% { margin-left: 38%; }
-          100% { margin-left: 15%; }
-        }
         @keyframes speakerPulse {
           0%, 100% { transform: scale(1); opacity: 0.15; }
           50% { transform: scale(1.08); opacity: 0.4; }
@@ -205,9 +184,6 @@ export const AtmosphericEffects: React.FC<AtmosphericEffectsProps> = ({
         }
         .animate-mist-drift-reverse {
           animation: mistDriftReverse infinite ease-in-out;
-        }
-        .animate-needle-drift {
-          animation: needleDrift infinite ease-in-out;
         }
         .animate-speaker-pulse {
           animation: speakerPulse 0.45s infinite ease-in-out;

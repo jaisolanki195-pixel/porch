@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
-import { Radio, ChevronDown, ChevronUp, AlertCircle, Sparkles, RefreshCw, X, Eye } from 'lucide-react';
+import { Radio, ChevronDown, ChevronUp, Sparkles, X, Eye, Music2 } from 'lucide-react';
 import { ContentSettings } from '../types';
 
 interface StoryCardProps {
   content: ContentSettings;
   isPlaying: boolean;
   errorMessage: string | null;
-  onResetToCuratedPlaylist: () => void;
+  tuningMessage: string | null;
+  isEntirePlaylistUnplayable?: boolean;
   accentColor: string;
 }
 
@@ -14,7 +15,8 @@ export const StoryCard: React.FC<StoryCardProps> = ({
   content,
   isPlaying,
   errorMessage,
-  onResetToCuratedPlaylist,
+  tuningMessage,
+  isEntirePlaylistUnplayable,
   accentColor,
 }) => {
   const [isVisible, setIsVisible] = useState(false);
@@ -22,28 +24,34 @@ export const StoryCard: React.FC<StoryCardProps> = ({
 
   // Split title if it contains "Father's Radio" or display cleanly
   const rawTitle = content.title || "Father's Radio";
-  const isDefaultTitle = rawTitle.toLowerCase().includes("father's") && rawTitle.toLowerCase().includes("radio");
+  const isDefaultTitle =
+    rawTitle.toLowerCase().includes("father's") && rawTitle.toLowerCase().includes('radio');
 
   return (
     <div className="relative z-30 max-w-xl mx-auto md:mx-0 select-none animate-in fade-in duration-500">
-      {/* Error Alert Banner if YouTube fails */}
-      {errorMessage && (
+      {/* Subtle Radio Tuning Status Indicator (Minimal & Nostalgic) */}
+      {tuningMessage && !isEntirePlaylistUnplayable && (
         <div
-          id="youtube-error-banner"
-          className="mb-3 p-3.5 rounded-2xl bg-red-950/90 border border-red-500/60 backdrop-blur-xl text-red-200 shadow-2xl flex items-start gap-3 animate-in fade-in"
+          id="radio-tuning-status-pill"
+          className="mb-3 px-3.5 py-1.5 rounded-full bg-slate-900/90 border border-amber-400/40 backdrop-blur-xl text-amber-200 text-xs font-mono shadow-xl inline-flex items-center gap-2.5 animate-in fade-in slide-in-from-top-1"
         >
-          <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
-          <div className="flex-1 text-xs">
-            <div className="font-semibold text-red-100 mb-0.5">Playlist Notice</div>
-            <p className="text-red-200/90 leading-relaxed mb-2">{errorMessage}</p>
-            <button
-              onClick={onResetToCuratedPlaylist}
-              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-red-800/80 hover:bg-red-700 text-white font-medium transition-colors text-[11px]"
-            >
-              <RefreshCw className="w-3 h-3" />
-              Switch to 90s Monsoon Curated Playlist
-            </button>
-          </div>
+          <span className="relative flex h-2 w-2">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
+          </span>
+          <Radio className="w-3.5 h-3.5 text-amber-400 animate-pulse" />
+          <span className="tracking-wide">{tuningMessage}</span>
+        </div>
+      )}
+
+      {/* Simple elegant notice when no playable songs remain (no fallback buttons or retry actions) */}
+      {isEntirePlaylistUnplayable && (
+        <div
+          id="youtube-playlist-unplayable-card"
+          className="mb-3 px-4 py-2.5 rounded-xl bg-stone-900/90 border border-amber-500/30 backdrop-blur-xl text-stone-200 text-xs font-serif shadow-xl inline-flex items-center gap-2.5 animate-in fade-in slide-in-from-top-1"
+        >
+          <Music2 className="w-4 h-4 text-amber-400 flex-shrink-0" />
+          <span className="tracking-wide">{errorMessage || 'No playable songs available in this playlist.'}</span>
         </div>
       )}
 
@@ -83,7 +91,9 @@ export const StoryCard: React.FC<StoryCardProps> = ({
               {/* Title with Immersive UI styling */}
               {isDefaultTitle ? (
                 <h1 className="text-4xl sm:text-5xl md:text-6xl font-serif font-black tracking-tight leading-none drop-shadow-md text-stone-100">
-                  <span className="text-red-500 drop-shadow-[0_2px_10px_rgba(220,38,38,0.4)]">FATHER&apos;S</span>{' '}
+                  <span className="text-red-500 drop-shadow-[0_2px_10px_rgba(220,38,38,0.4)]">
+                    FATHER&apos;S
+                  </span>{' '}
                   <span className="text-white/95">RADIO</span>
                 </h1>
               ) : (
@@ -102,7 +112,7 @@ export const StoryCard: React.FC<StoryCardProps> = ({
               <button
                 onClick={() => setIsExpanded(!isExpanded)}
                 title={isExpanded ? 'Collapse story' : 'Read memory story'}
-                className="p-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-stone-300 hover:text-amber-300 border border-white/10 transition-all shadow-sm"
+                className="p-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-stone-300 hover:text-amber-300 border border-white/10 transition-all shadow-sm cursor-pointer"
               >
                 {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
               </button>
@@ -111,7 +121,7 @@ export const StoryCard: React.FC<StoryCardProps> = ({
                 onClick={() => setIsVisible(false)}
                 title="Hide this card"
                 aria-label="Hide story card"
-                className="p-2 rounded-xl bg-slate-800/80 hover:bg-red-950/80 text-stone-400 hover:text-red-300 border border-white/10 hover:border-red-500/40 transition-all shadow-sm"
+                className="p-2 rounded-xl bg-slate-800/80 hover:bg-red-950/80 text-stone-400 hover:text-red-300 border border-white/10 hover:border-red-500/40 transition-all shadow-sm cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -127,7 +137,9 @@ export const StoryCard: React.FC<StoryCardProps> = ({
                   <Sparkles className="w-3.5 h-3.5" />
                   Rain on Tin Roof • Chai in Steel Cup
                 </span>
-                <span className="text-stone-400 uppercase tracking-widest text-[10px]">Verandah Memories</span>
+                <span className="text-stone-400 uppercase tracking-widest text-[10px]">
+                  Verandah Memories
+                </span>
               </div>
             </div>
           )}
@@ -136,4 +148,3 @@ export const StoryCard: React.FC<StoryCardProps> = ({
     </div>
   );
 };
-
