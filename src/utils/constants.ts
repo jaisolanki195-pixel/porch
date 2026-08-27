@@ -1,4 +1,4 @@
-import { AppSettings } from '../types';
+import { AppSettings, VisitorPreferences } from '../types';
 
 export const DEFAULT_HERO_IMAGE_PATH = '/default_hero.jpg';
 
@@ -10,6 +10,17 @@ export const CURATED_PLAYLISTS = [
     url: 'https://www.youtube.com/playlist?list=PL9bw4s5Ag3rU0Lp4F6-6Pq0a_sK_8jG6U',
   }
 ];
+
+export const DEFAULT_VISITOR_PREFERENCES: VisitorPreferences = {
+  volume: 75,
+  shuffle: false,
+  autoPlayNext: true,
+  playlistLoop: 'repeat-playlist',
+  performanceMode: 'cinematic',
+  rainEnabled: true,
+  showVisualizer: true,
+  reducedMotion: false,
+};
 
 export const DEFAULT_SETTINGS: AppSettings = {
   rain: {

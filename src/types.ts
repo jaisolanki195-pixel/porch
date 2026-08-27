@@ -63,6 +63,29 @@ export interface HeroImageSettings {
   previewUrl?: string | null;
 }
 
+/**
+ * Visitor-Local Preferences:
+ * These settings can be freely customized by public visitors and are stored
+ * strictly in their local browser session without mutating site-wide owner configuration.
+ */
+export interface VisitorPreferences {
+  volume: number;
+  shuffle: boolean;
+  autoPlayNext: boolean;
+  playlistLoop: PlaylistLoopMode;
+  performanceMode: PerformanceMode;
+  rainEnabled: boolean;
+  showVisualizer: boolean;
+  reducedMotion: boolean;
+}
+
+/**
+ * Canonical Site Configuration / Owner Settings:
+ * Controls the core visual identity, branding, default playlist, rain physics,
+ * atmospheric layers, and story narrative.
+ */
+export type OwnerSettings = AppSettings;
+
 export interface AppSettings {
   rain: RainSettings;
   music: MusicSettings;
@@ -70,6 +93,7 @@ export interface AppSettings {
   atmosphere: AtmosphereSettings;
   content: ContentSettings;
   heroImage: HeroImageSettings;
+  visitorPreferences?: Partial<VisitorPreferences>;
 }
 
 export interface PlaylistItem {
