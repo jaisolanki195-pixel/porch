@@ -1,0 +1,8 @@
+{
+  "name": "Remix Father\u0027s Radio - 90s Monsoon",
+  "description": "Nostalgic 1990s monsoon radio and music player with synchronized YouTube playlist and atmospheric rain animations.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

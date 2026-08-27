@@ -1,0 +1,39 @@
+@import "tailwindcss";
+
+@layer utilities {
+  .glass-card {
+    background: rgba(15, 23, 42, 0.72);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+  }
+
+  .glass-card-dark {
+    background: rgba(10, 15, 29, 0.85);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .radio-glow {
+    box-shadow: 0 0 25px rgba(245, 158, 11, 0.35), 0 10px 30px -5px rgba(0, 0, 0, 0.8);
+  }
+
+  .radio-chassis {
+    background: linear-gradient(145deg, #451a03 0%, #291205 60%, #170a03 100%);
+    border: 3px solid #78350f;
+    box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.15), 0 12px 35px rgba(0, 0, 0, 0.9);
+  }
+
+  .nostalgia-red {
+    color: #dc2626;
+  }
+
+  .mustard-text {
+    color: #eab308;
+  }
+
+  .monsoon-gradient {
+    background: linear-gradient(to bottom, #1e293b 0%, #334155 35%, #1a2e22 70%, #0f172a 100%);
+  }
+}
